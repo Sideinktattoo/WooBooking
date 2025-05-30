@@ -88,3 +88,61 @@ register_deactivation_hook(__FILE__, 'wc_booking_deactivate');
 function wc_booking_deactivate() {
     flush_rewrite_rules();
 }
+// Helper functions
+function wc_booking_get_statuses() {
+    return array(
+        'confirmed' => __('Confirmed', 'wc-booking'),
+        'paid'      => __('Paid', 'wc-booking'),
+        'completed' => __('Completed', 'wc-booking'),
+        'cancelled' => __('Cancelled', 'wc-booking'),
+        'pending'   => __('Pending', 'wc-booking'),
+    );
+}
+
+function wc_booking_get_employees_for_product($product_id) {
+    $employee_ids = get_post_meta($product_id, '_wc_booking_employees', true);
+    
+    if (empty($employee_ids)) {
+        return array();
+    }
+    
+    return get_posts(array(
+        'post_type' => 'wc_booking_employee',
+        'post__in' => $employee_ids,
+        'numberposts' => -1,
+        'orderby' => 'title',
+        'order' => 'ASC',
+    ));
+}
+
+function wc_booking_get_services_for_product($product_id) {
+    $service_ids = get_post_meta($product_id, '_wc_booking_services', true);
+    
+    if (empty($service_ids)) {
+        return array();
+    }
+    
+    return get_terms(array(
+        'taxonomy' => 'wc_booking_service',
+        'include' => $service_ids,
+        'hide_empty' => false,
+        'orderby' => 'name',
+        'order' => 'ASC',
+    ));
+}
+
+function wc_booking_get_extras_for_product($product_id) {
+    $extra_ids = get_post_meta($product_id, '_wc_booking_extras', true);
+    
+    if (empty($extra_ids)) {
+        return array();
+    }
+    
+    return get_terms(array(
+        'taxonomy' => 'wc_booking_extra',
+        'include' => $extra_ids,
+        'hide_empty' => false,
+        'orderby' => 'name',
+        'order' => 'ASC',
+    ));
+}
